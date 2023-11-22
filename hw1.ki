@@ -1,0 +1,7 @@
+import io
+
+func main() -> int32 {
+    let text: string = "Hello world!\n";
+    io.print(text);
+    return 0;
+}
