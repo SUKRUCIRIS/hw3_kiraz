@@ -6,6 +6,9 @@ using kiraz::Token;
 using kiraz::colno;
 %}
 
+%option yylineno
+%option noyywrap
+
 OP_RETURNS ->
 OP_EQUALS  ==
 OP_ASSIGN  =
