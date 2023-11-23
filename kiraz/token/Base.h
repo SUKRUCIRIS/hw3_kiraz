@@ -227,6 +227,10 @@ struct fmt::formatter<kiraz::token::Id> : fmt::formatter<std::string> {
             retval = "KW_CLASS";
             break;
 
+        case kiraz::token::KW_LET:
+            retval = "KW_LET";
+            break;
+
         case kiraz::token::IGNORED:
             break;
         }

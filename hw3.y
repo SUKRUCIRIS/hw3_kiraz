@@ -47,18 +47,80 @@ int yyerror(const char *s);
 %token    KW_WHILE
 %token    KW_CLASS
 %token    KW_IMPORT
+%token    KW_LET
 
 %left OP_PLUS OP_MINUS
 %left OP_MULT OP_DIVF
 
 %%
 
-stmtlist
-    : stmtlist stmt OP_NEWLINE
-    | stmtlist stmt OP_SCOLON
-    |          stmt OP_NEWLINE
-    |          stmt OP_SCOLON
+input
+	: lines
+	| func
+	| func OP_SCOLON
+	| func OP_NEWLINE
+	| %empty
+	;
+
+func_args
+	: iden OP_COLON iden { 
+		auto y= stmt::funcargs(); 
+		$$.reset(y.push_iden($1,$3)); }
+	| func_args OP_COMMA iden OP_COLON iden {
+		stmt::funcargs* x=(stmt::funcargs*)$1.get();
+		$$.reset(x->push_iden($3,$5));}
+	;
+
+func
+	: KW_FUNC iden OP_LPAREN func_args OP_RPAREN OP_COLON iden OP_LBRACE func_lines OP_RBRACE { 
+		$$ = Stmt::add<stmt::KeyFunc>($2, $4, $7, $9); }
+	| KW_FUNC iden OP_LPAREN func_args OP_RPAREN OP_COLON iden OP_LBRACE OP_RBRACE { 
+		$$ = Stmt::add<stmt::KeyFunc>($2, $4, $7, nullptr); }
+	| KW_FUNC iden OP_LPAREN OP_RPAREN OP_COLON iden OP_LBRACE OP_RBRACE { 
+		$$ = Stmt::add<stmt::KeyFunc>($2, nullptr, $7, nullptr); }
+	| KW_FUNC iden OP_LPAREN OP_RPAREN OP_COLON iden OP_LBRACE func_lines OP_RBRACE { 
+		$$ = Stmt::add<stmt::KeyFunc>($2, nullptr, $7, $9); }
+	;
+
+func_lines
+    : func_lines line OP_NEWLINE {
+		stmt::lines* x=(stmt::lines*)$1.get();
+		$$.reset(x->push_line($2)); }
+    | func_lines line OP_SCOLON {
+		stmt::lines* x=(stmt::lines*)$1.get();
+		$$.reset(x->push_line($2)); }
+    |       line OP_NEWLINE {
+		auto x=stmt::lines();
+		$$.reset(x.push_line($1)); }
+    |       line OP_SCOLON	{
+		auto x=stmt::lines();
+		$$.reset(x.push_line($1)); }
     ;
+
+lines
+    : lines line OP_NEWLINE
+    | lines line OP_SCOLON
+    |       line OP_NEWLINE
+    |       line OP_SCOLON	
+    ;
+
+let
+	: KW_LET iden OP_ASSIGN literal { $$ = Stmt::add<stmt::KeyLet>(nullptr, $2, $4); }
+	| KW_LET iden OP_ASSIGN OP_PLUS literal { $$ = Stmt::add<stmt::KeyLet>(nullptr, $2, $4); }
+	| KW_LET iden OP_ASSIGN OP_MINUS literal { 
+		std::shared_ptr<kiraz::Stmt> x;
+		auto y=stmt::SignedStmt(token::OP_MINUS, $4);
+		x.reset(&y);
+		$$ = Stmt::add<stmt::KeyLet>(nullptr, $2, x); }
+	| KW_LET iden OP_COLON iden { $$ = Stmt::add<stmt::KeyLet>($4, $2, nullptr); }
+	| KW_LET iden OP_COLON iden OP_ASSIGN stmt { $$ = Stmt::add<stmt::KeyLet>($4, $2, $6); }
+	;
+
+line
+	: stmt
+	| iden OP_ASSIGN stmt { $$ = Stmt::add<stmt::OpAss>($1, $3); }
+	| let
+	;
 
 stmt
     : OP_LPAREN stmt OP_RPAREN { $$ = $2; }
@@ -78,14 +140,19 @@ muldiv
     ;
 
 posneg
-    : OP_PLUS  literal { $$ = Stmt::add<stmt::SignedStmt>(token::OP_PLUS, $2); }
-    | OP_MINUS literal { $$ = Stmt::add<stmt::SignedStmt>(token::OP_MINUS, $2); }
+    : OP_PLUS  stmt { $$ = Stmt::add<stmt::SignedStmt>(token::OP_PLUS, $2); }
+    | OP_MINUS stmt { $$ = Stmt::add<stmt::SignedStmt>(token::OP_MINUS, $2); }
     | literal
+	| iden
     ;
 
 literal
     : L_INTEGER { $$ = Stmt::add<stmt::Integer>(Token::last()); }
     ;
+
+iden
+	: IDENTIFIER { $$ = Stmt::add<stmt::Identifier>(Token::last()); }
+	;
 
 %%
 

@@ -36,6 +36,7 @@ KW_FUNC    func
 KW_IF      if
 KW_WHILE   while
 KW_CLASS   class
+KW_LET     let
 
 
 LC_DEC     [0-9]
@@ -53,6 +54,7 @@ IGNORED    [ \t]
 {KW_IF}         { colno += yyleng; return Token::feed(KeywordIf()); }
 {KW_WHILE}      { colno += yyleng; return Token::feed(KeywordWhile()); }
 {KW_CLASS}      { colno += yyleng; return Token::feed(KeywordClass()); }
+{KW_LET}		{ colno += yyleng; return Token::feed(KeywordLet()); }
 
 
 {LC_TRUE}       { colno += yyleng; return Token::feed(Boolean(true)); }

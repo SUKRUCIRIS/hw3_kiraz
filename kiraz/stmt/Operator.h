@@ -48,6 +48,12 @@ public:
     OpDivF(const Stmt::Ptr &left, const Stmt::Ptr &right) : OpBinary(token::OP_DIVF, left, right) {}
 };
 
+class OpAss : public OpBinary {
+public:
+    OpAss(const Stmt::Ptr &left, const Stmt::Ptr &right)
+            : OpBinary(token::OP_ASSIGN, left, right) {}
+};
+
 } // namespace stmt
 } // namespace kiraz
 
