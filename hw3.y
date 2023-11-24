@@ -42,11 +42,11 @@ int yyerror(const char *s);
 %token    L_BOOLEAN
 
 // Keywords
+%token    KW_IMPORT
 %token    KW_IF
 %token    KW_FUNC
 %token    KW_WHILE
 %token    KW_CLASS
-%token    KW_IMPORT
 %token    KW_LET
 
 %left OP_PLUS OP_MINUS
