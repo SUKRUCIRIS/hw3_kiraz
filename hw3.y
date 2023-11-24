@@ -56,19 +56,7 @@ int yyerror(const char *s);
 
 input
 	: lines
-	| func
-	| func OP_SCOLON
-	| func OP_NEWLINE
 	| %empty
-	;
-
-func_args
-	: iden OP_COLON iden { 
-		auto y= stmt::funcargs(); 
-		$$.reset(y.push_iden($1,$3)); }
-	| func_args OP_COMMA iden OP_COLON iden {
-		stmt::funcargs* x=(stmt::funcargs*)$1.get();
-		$$.reset(x->push_iden($3,$5));}
 	;
 
 func
@@ -77,9 +65,18 @@ func
 	| KW_FUNC iden OP_LPAREN func_args OP_RPAREN OP_COLON iden OP_LBRACE OP_RBRACE { 
 		$$ = Stmt::add<stmt::KeyFunc>($2, $4, $7, nullptr); }
 	| KW_FUNC iden OP_LPAREN OP_RPAREN OP_COLON iden OP_LBRACE OP_RBRACE { 
-		$$ = Stmt::add<stmt::KeyFunc>($2, nullptr, $7, nullptr); }
+		$$ = Stmt::add<stmt::KeyFunc>($2, nullptr, $6, nullptr); }
 	| KW_FUNC iden OP_LPAREN OP_RPAREN OP_COLON iden OP_LBRACE func_lines OP_RBRACE { 
-		$$ = Stmt::add<stmt::KeyFunc>($2, nullptr, $7, $9); }
+		$$ = Stmt::add<stmt::KeyFunc>($2, nullptr, $6, $8); }
+	;
+
+func_args
+	: iden OP_COLON iden { 
+		auto y= stmt::funcargs(); 
+		$$.reset(y.push_iden($1,$3)); }
+	| func_args OP_COMMA iden OP_COLON iden {
+		stmt::funcargs* x=(stmt::funcargs*)$1.get();
+		$$.reset(x->push_iden($3,$5)); }
 	;
 
 func_lines
@@ -102,16 +99,19 @@ lines
     | lines line OP_SCOLON
     |       line OP_NEWLINE
     |       line OP_SCOLON	
+	| 		func OP_SCOLON
+	| 		func OP_NEWLINE
+	| lines	func OP_SCOLON
+	| lines	func OP_NEWLINE
+	| 		func
+	| lines func
     ;
 
 let
 	: KW_LET iden OP_ASSIGN literal { $$ = Stmt::add<stmt::KeyLet>(nullptr, $2, $4); }
-	| KW_LET iden OP_ASSIGN OP_PLUS literal { $$ = Stmt::add<stmt::KeyLet>(nullptr, $2, $4); }
-	| KW_LET iden OP_ASSIGN OP_MINUS literal { 
-		std::shared_ptr<kiraz::Stmt> x;
-		auto y=stmt::SignedStmt(token::OP_MINUS, $4);
-		x.reset(&y);
-		$$ = Stmt::add<stmt::KeyLet>(nullptr, $2, x); }
+	| KW_LET iden OP_ASSIGN OP_PLUS literal { $$ = Stmt::add<stmt::KeyLet>(nullptr, $2, $5); }
+	| KW_LET iden OP_ASSIGN OP_MINUS literal {
+		$$ = Stmt::add<stmt::KeyLet>(nullptr, $2, Stmt::add<stmt::SignedStmt>(token::OP_MINUS, $5)); }
 	| KW_LET iden OP_COLON iden { $$ = Stmt::add<stmt::KeyLet>($4, $2, nullptr); }
 	| KW_LET iden OP_COLON iden OP_ASSIGN stmt { $$ = Stmt::add<stmt::KeyLet>($4, $2, $6); }
 	;
