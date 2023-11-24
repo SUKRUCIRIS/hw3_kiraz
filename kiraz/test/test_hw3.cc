@@ -10,6 +10,17 @@ extern int yydebug;
 
 namespace kiraz {
 
+void test_clear(YY_BUFFER_STATE buffer) {
+    yy_delete_buffer(buffer);
+    Token::clear();
+    yydebug = 0;
+    kiraz::colno = 0;
+    // I reset the root until the count is 0
+    while (Stmt::get_root().use_count() != 0) {
+        Stmt::reset_root();
+    }
+}
+
 TEST(hw3, add) {
     /* init */
     // yydebug = 1; // uncomment to your heart's content
@@ -43,11 +54,7 @@ TEST(hw3, add) {
     ASSERT_EQ(fmt::format("{}", *root), "OP_PLUS(l=Int(10, 1), r=Int(10, 2))");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, add_signed) {
@@ -64,11 +71,7 @@ TEST(hw3, add_signed) {
     ASSERT_EQ(fmt::format("{}", *root), "OP_PLUS(l=Int(10, 1), r=Signed(OP_MINUS, Int(10, 2)))");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, signed_add) {
@@ -85,11 +88,7 @@ TEST(hw3, signed_add) {
     ASSERT_EQ(fmt::format("{}", *root), "OP_PLUS(l=Signed(OP_MINUS, Int(10, 1)), r=Int(10, 2))");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, add_mul) {
@@ -110,11 +109,7 @@ TEST(hw3, add_mul) {
             ")");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, mul_add) {
@@ -135,11 +130,7 @@ TEST(hw3, mul_add) {
             ")");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, add__paren_mul) {
@@ -160,11 +151,7 @@ TEST(hw3, add__paren_mul) {
             ")");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, paren_mul__add) {
@@ -185,11 +172,7 @@ TEST(hw3, paren_mul__add) {
             ")");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, mul__paren_add) {
@@ -210,11 +193,7 @@ TEST(hw3, mul__paren_add) {
             ")");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, paren_add__mul) {
@@ -235,11 +214,7 @@ TEST(hw3, paren_add__mul) {
             ")");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, neg_paren_add__mul) {
@@ -262,11 +237,7 @@ TEST(hw3, neg_paren_add__mul) {
             ")");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, paren_add__mul__paren_add) {
@@ -287,11 +258,7 @@ TEST(hw3, paren_add__mul__paren_add) {
             ")");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, paren_mul__sub__paren_mul) {
@@ -312,11 +279,7 @@ TEST(hw3, paren_mul__sub__paren_mul) {
             ")");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, paren_mul__sub__paren_mul__with_iden) {
@@ -334,11 +297,7 @@ TEST(hw3, paren_mul__sub__paren_mul__with_iden) {
             "OP_MINUS(l=OP_MULT(l=Id(a), r=Id(b)), r=OP_MULT(l=Id(c), r=Id(d)))");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, assignment) {
@@ -355,11 +314,7 @@ TEST(hw3, assignment) {
     ASSERT_EQ(fmt::format("{}", *root), "OP_ASSIGN(l=Id(a), r=Int(10, 5))");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, assignment_iden) {
@@ -376,11 +331,7 @@ TEST(hw3, assignment_iden) {
     ASSERT_EQ(fmt::format("{}", *root), "OP_ASSIGN(l=Id(a), r=OP_PLUS(l=Id(b), r=Int(10, 5)))");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, assignment_iden_neg) {
@@ -398,11 +349,7 @@ TEST(hw3, assignment_iden_neg) {
             "OP_ASSIGN(l=Id(a), r=Signed(OP_MINUS, OP_DIVF(l=Id(b), r=Int(10, 5))))");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, let_with_val) {
@@ -419,11 +366,7 @@ TEST(hw3, let_with_val) {
     ASSERT_EQ(fmt::format("{}", *root), "Let(n=Id(a), i=Int(10, 5))");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, let_with_type) {
@@ -440,11 +383,7 @@ TEST(hw3, let_with_type) {
     ASSERT_EQ(fmt::format("{}", *root), "Let(n=Id(a), t=Id(Int64))");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, let_with_type_val) {
@@ -461,11 +400,7 @@ TEST(hw3, let_with_type_val) {
     ASSERT_EQ(fmt::format("{}", *root), "Let(n=Id(a), t=Id(Int64), i=Int(10, 5))");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, let_invalid) {
@@ -482,11 +417,7 @@ TEST(hw3, let_invalid) {
     ASSERT_FALSE(root);
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, let_with_value_invalid) {
@@ -503,11 +434,7 @@ TEST(hw3, let_with_value_invalid) {
     ASSERT_FALSE(root);
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 #if 0
@@ -525,11 +452,7 @@ TEST(hw3, let_with_stmt_invalid) {
     ASSERT_FALSE(root);
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 #endif
 
@@ -547,11 +470,7 @@ TEST(hw3, func) {
     ASSERT_EQ(fmt::format("{}", *root), "Func(n=Id(f), a=[], r=Id(T), s=[])");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, func_args) {
@@ -569,11 +488,7 @@ TEST(hw3, func_args) {
             "Func(n=Id(f), a=FuncArgs([Arg(n=Id(a1), t=Id(A1))]), r=Id(T), s=[])");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 TEST(hw3, func_args_stmts) {
@@ -596,11 +511,7 @@ TEST(hw3, func_args_stmts) {
             ")");
 
     /* cleanup */
-    yy_delete_buffer(buffer);
-    Token::clear();
-    Stmt::reset_root();
-    yydebug = 0;
-    kiraz::colno = 0;
+    test_clear(buffer);
 }
 
 } // namespace kiraz
