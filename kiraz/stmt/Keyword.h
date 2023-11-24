@@ -35,7 +35,11 @@ private:
     std::vector<Stmt::Ptr> m_type;
 
 public:
-    funcargs() {}
+    funcargs(Stmt::Ptr iden, Stmt::Ptr type) {
+        m_iden.push_back(iden);
+        m_type.push_back(type);
+    }
+    funcargs(funcargs *x) { *this = *x; }
     funcargs *push_iden(Stmt::Ptr iden, Stmt::Ptr type) {
         m_iden.push_back(iden);
         m_type.push_back(type);
@@ -44,7 +48,7 @@ public:
     std::string get_repr() const override {
         std::string res = "FuncArgs([";
         for (int i = 0; i < m_iden.size(); i++) {
-            res += "Arg(n=Id(" + m_iden[i]->get_repr() + "), t=Id(" + m_type[i]->get_repr() + "))";
+            res += "Arg(n=" + m_iden[i]->get_repr() + ", t=" + m_type[i]->get_repr() + ")";
             if (i != m_iden.size() - 1) {
                 res += ", ";
             }
@@ -59,7 +63,8 @@ private:
     std::vector<Stmt::Ptr> v_line;
 
 public:
-    lines() {}
+    lines(Stmt::Ptr line) { v_line.push_back(line); }
+    lines(lines *x) { *this = *x; }
     lines *push_line(Stmt::Ptr line) {
         v_line.push_back(line);
         return this;

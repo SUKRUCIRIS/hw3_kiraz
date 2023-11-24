@@ -59,6 +59,19 @@ input
 	| %empty
 	;
 
+lines
+    : lines line OP_NEWLINE
+    | lines line OP_SCOLON
+    |       line OP_NEWLINE
+    |       line OP_SCOLON	
+	| 		func OP_SCOLON
+	| 		func OP_NEWLINE
+	| lines	func OP_SCOLON
+	| lines	func OP_NEWLINE
+	| 		func
+	| lines func
+    ;
+
 func
 	: KW_FUNC iden OP_LPAREN func_args OP_RPAREN OP_COLON iden OP_LBRACE func_lines OP_RBRACE { 
 		$$ = Stmt::add<stmt::KeyFunc>($2, $4, $7, $9); }
@@ -72,39 +85,23 @@ func
 
 func_args
 	: iden OP_COLON iden { 
-		auto y= stmt::funcargs(); 
-		$$.reset(y.push_iden($1,$3)); }
+		$$ = Stmt::add<stmt::funcargs>($1,$3); }
 	| func_args OP_COMMA iden OP_COLON iden {
 		stmt::funcargs* x=(stmt::funcargs*)$1.get();
-		$$.reset(x->push_iden($3,$5)); }
+		$$ = Stmt::add<stmt::funcargs>(x->push_iden($3,$5)); }
 	;
 
 func_lines
     : func_lines line OP_NEWLINE {
 		stmt::lines* x=(stmt::lines*)$1.get();
-		$$.reset(x->push_line($2)); }
+		$$ = Stmt::add<stmt::lines>(x->push_line($2)); }
     | func_lines line OP_SCOLON {
 		stmt::lines* x=(stmt::lines*)$1.get();
-		$$.reset(x->push_line($2)); }
+		$$ = Stmt::add<stmt::lines>(x->push_line($2)); }
     |       line OP_NEWLINE {
-		auto x=stmt::lines();
-		$$.reset(x.push_line($1)); }
+		$$ = Stmt::add<stmt::lines>($1);}
     |       line OP_SCOLON	{
-		auto x=stmt::lines();
-		$$.reset(x.push_line($1)); }
-    ;
-
-lines
-    : lines line OP_NEWLINE
-    | lines line OP_SCOLON
-    |       line OP_NEWLINE
-    |       line OP_SCOLON	
-	| 		func OP_SCOLON
-	| 		func OP_NEWLINE
-	| lines	func OP_SCOLON
-	| lines	func OP_NEWLINE
-	| 		func
-	| lines func
+		$$ = Stmt::add<stmt::lines>($1); }
     ;
 
 let
